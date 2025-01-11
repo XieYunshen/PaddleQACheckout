@@ -22,6 +22,7 @@ function init() {
     fi
     CLONE_DEPTH="${INPUT_FETCH_DEPTH:+--depth ${INPUT_FETCH_DEPTH:-1}}"
     COMMIT_SHA=${INPUT_COMMIT_SHA}
+    REPO_COMPRESS=${INPUT_REPO_COMPRESS}
 
     # 输出信息，确认设置
     echo "Cloning repository: $CLONE_REPO"
@@ -47,7 +48,7 @@ function checkout_commit_sha() {
         echo "commit_sha not provided."
     else
         # 检查 commit 是否存在
-        if git rev-parse "$COMMIT_SHA" &>/dev/null; then
+        if git show "$COMMIT_SHA" &>/dev/null; then
             echo "Commit exists"
         else
             echo "Commit does not exist. Attempting to fetch and pull updates..."
@@ -61,7 +62,7 @@ function checkout_commit_sha() {
             fi
         fi
         # 再次检查 commit 是否存在
-        if git rev-parse "$COMMIT_SHA" &>/dev/null; then
+        if git show "$COMMIT_SHA" &>/dev/null; then
             echo "Commit exists after fetching updates"
         else
             echo "Commit still does not exist after fetching updates"
@@ -69,6 +70,23 @@ function checkout_commit_sha() {
         fi
         # 切换到指定的commit_sha
         git reset --hard ${COMMIT_SHA}
+    fi
+}
+
+# 代码库清理和压缩
+function clean_and_compress_repo() {
+    if [[ "${INPUT_REPO_COMPRESS}" == "true" ]];then
+        # Remove unreachable objects and pack loose objects
+        echo "Running garbage collection..."
+        git gc --prune=now --quiet
+
+        # Repack to optimize pack files
+        echo "Repacking objects..."
+        git repack -a -d -q
+        if git submodule status &>/dev/null; then
+            git submodule foreach 'git gc --prune=now'
+            git submodule foreach 'git repack -a -d -q'
+        fi
     fi
 }
 
@@ -80,6 +98,7 @@ function main() {
     git clone $CLONE_REPO $CLONE_BRANCH $CLONE_DEPTH . || { echo "Git clone failed"; exit 1; }
     checkout_commit_sha || { echo "Checkout commit sha failed"; exit 2; }
     init_submodule || { echo "Submodule initialization failed"; exit 2; }
+    clean_and_compress_repo
 }
 
 main $@
