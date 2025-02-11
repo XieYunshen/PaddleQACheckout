@@ -10,7 +10,7 @@ echo "git_version=$git_version" >> $GITHUB_OUTPUT
 function init() {
     # Handling default values
     CLONE_REPO="https://github.com/${INPUT_REPOSITORY:-$GITHUB_REPOSITORY}"
-    CLONE_REF="${INPUT_REF:+-b ${INPUT_REF:-main}}"
+    CLONE_REF="${INPUT_REF:-main}"
     if [[ -z "${INPUT_PATH}" ]];then
         if [[ -z "${INPUT_REPOSITORY}" ]];then
             CLONE_PATH="${GITHUB_REPOSITORY##*/}"
