@@ -23,6 +23,8 @@ function init() {
     CLONE_DEPTH="${INPUT_FETCH_DEPTH:+--depth ${INPUT_FETCH_DEPTH:-1}}"
     if [[ -z "${INPUT_BRANCH_NAME}" ]];then
         BRANCH_NAME=${CLONE_REF}
+    else
+        BRANCH_NAME=${INPUT_BRANCH_NAME}
     fi
     # Repository compression setting
     REPO_COMPRESS=${INPUT_REPO_COMPRESS}
