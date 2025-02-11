@@ -9,8 +9,8 @@ inputs:
       The branch, tag or SHA to checkout. When checking out the repository that
       triggered a workflow, this defaults to the reference or SHA for that
       event.  Otherwise, uses the default branch.
-  commit_sha:
-    description: 'The commit SHA to checkout. If provided, it will override the ref value.'
+  branch_name:
+    description: 'The branch name to checkout. If provided, it will override the ref value.'
     default: ''
   path:
     description: 'Relative path under $GITHUB_WORKSPACE to place the repository'
@@ -40,7 +40,7 @@ runs:
   args:
     - ${{ inputs.repository }}
     - ${{ inputs.ref }}
-    - ${{ inputs.commit_sha}}
+    - ${{ inputs.branch_name }}
     - ${{ inputs.path }}
     - ${{ inputs.fetch-depth }}
     - ${{ inputs.submodules }}
